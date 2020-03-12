@@ -1,7 +1,6 @@
 ---
 gpte_reporting:
-
-  catalog_name: "{{ vars.anarchy_governor.metadata.name }}"
+  catalog_item: "{{ vars.anarchy_governor.metadata.name |default('unknown') }}"
 
   # Variables from Anarchy Subject
   guid: "{{ anarchy_subject.vars.job_vars.guid | default(None) }}"

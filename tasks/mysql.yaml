@@ -1,15 +1,20 @@
 ---
-- name: Insert info into GPTE LMS DB
-  environment:
-    MYSQL_TCP_PORT: "{{ gpte_reporting.mysql_port }}"
-    MYSQL_HOST: "{{ gpte_reporting.mysql_host }}"
-    MYSQL_PWD: "{{ gpte_reporting.mysql_password }}"
+- name: Test access with a simple query
+  mysql_query:
+    login_db: "{{ gpte_reporting.mysql_db }}"
+    login_host: "{{ gpte_reporting.mysql_host }}"
+    login_port: "{{ gpte_reporting.mysql_port }}"
+    login_password: "{{ gpte_reporting.mysql_password }}"
+    login_user: "{{ gpte_reporting.mysql_user }}"
 
-  # Do not fail the deployment if the DB is unreachable
+    query:
+      - SELECT COUNT(*) from lms_transactional.Provisions
+
   ignore_errors: true
+  register: r_select
 
-  command: >-
-    mysql -u "{{ gpte_reporting.mysql_user }}" "{{ gpte_reporting.mysql_db }}"
+- name: Insert info into GPTE LMS DB
+  when: r_select is succeeded
 
   # mysql -h qa-sfo00.opentlc.com -u provision_writer  <<< "describe lms_transactional.Provisions"
   # +------------------+--------------+------+-----+---------+-------+
@@ -41,36 +46,51 @@
   # | Account          | varchar(200) | YES  |     | NULL    |       |
   # | Sandbox          | varchar(200) | YES  |     | NULL    |       |
   # +------------------+--------------+------+-----+---------+-------+
+  # Do not fail the deployment if the DB is unreachable
+  ignore_errors: true
+  mysql_query:
+    login_db: "{{ gpte_reporting.mysql_db }}"
+    login_host: "{{ gpte_reporting.mysql_host }}"
+    login_port: "{{ gpte_reporting.mysql_port }}"
+    login_password: "{{ gpte_reporting.mysql_password }}"
+    login_user: "{{ gpte_reporting.mysql_user }}"
 
-  args:
-    stdin: >-
-      INSERT INTO lms_transactional.Provisions
-      (
-      ProvisionDate,
-      UserName,
-      CatalogItem,
-      Partner,
-      FullName,
-      Email,
-      Geo,
-      CloudService,
-      GUID,
-      UUID,
-      ProvisionResult,
-      DataSource
-      )
+    positional_args:
+      - "{{ gpte_reporting.student_name }}"
+      - "{{ gpte_reporting.catalog_item }}"
+      - "{{ gpte_reporting.email }}"
+      - "{{ gpte_reporting.aws_region }}"
+      - "{{ gpte_reporting.cloud_provider }}"
+      - "{{ gpte_reporting.guid }}"
+      - "{{ gpte_reporting.uuid }}"
 
-      VALUES (
-      (select now()),
-      '{{ gpte_reporting.student_name | regex_replace("'", "") }}',
-      '{{ gpte_reporting.catalog_name | regex_replace("'", "") }}',
-      'redhat',
-      'Babylon',
-      '{{ gpte_reporting.email | regex_replace("'", "") }}',
-      '{{ gpte_reporting.aws_region | regex_replace("'", "") }}',
-      '{{ gpte_reporting.cloud_provider | regex_replace("'", "") }}',
-      '{{ gpte_reporting.guid | regex_replace("'", "") }}',
-      '{{ gpte_reporting.uuid | regex_replace("'", "") }}',
-      'Success',
-      'BABYLON'
-      );
+    query:
+      - >-
+        INSERT INTO lms_transactional.Provisions
+        ( ProvisionDate,
+          UserName,
+          CatalogItem,
+          Partner,
+          FullName,
+          Email,
+          Geo,
+          CloudService,
+          GUID,
+          UUID,
+          ProvisionResult,
+          DataSource )
+
+        VALUES (
+          (select now()),
+          %s,
+          %s,
+          'redhat',
+          'Babylon',
+          %s,
+          %s,
+          %s,
+          %s,
+          %s,
+          'Success',
+          'BABYLON'
+        );
