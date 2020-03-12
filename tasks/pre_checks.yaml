@@ -1,0 +1,15 @@
+---
+- name: Ensure mandatory variables are set
+  assert:
+    that: "{{ check.that }}"
+    fail_msg: "{{ check.msg }}"
+    quiet: true
+  loop_control:
+    loop_var: check
+    label: "{{ check.msg }}"
+  loop:
+    - msg: Variable guid is not defined
+      that: gpte_reporting.guid is defined and gpte_reporting.guid != ''
+
+    - msg: Variable env_type is not defined
+      that: gpte_reporting.env_type is defined and gpte_reporting.env_type != ''

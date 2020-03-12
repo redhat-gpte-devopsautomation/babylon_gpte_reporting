@@ -1,0 +1,48 @@
+---
+gpte_reporting:
+
+  catalog_name: "{{ vars.anarchy_governor.metadata.name }}"
+
+  # Variables from Anarchy Subject
+  guid: "{{ anarchy_subject.vars.job_vars.guid | default(None) }}"
+
+  # For uuid, use the one passed by Cloudforms in cloud_tags,
+  # or use the AnarchySubject uid
+  uuid: >-
+    {{ anarchy_subject.vars.job_vars.cloud_tags.uuid
+    | default(vars.anarchy_subject.metadata.uid) }}
+
+  # Variables from either Governor or Subject
+  env_type: >-
+    {{ vars.anarchy_governor.vars.job_vars.env_type
+    | default(anarchy_subject.vars.job_vars.env_type)
+    | default(None) }}
+
+  cloud_provider: >-
+    {{ vars.anarchy_governor.vars.job_vars.cloud_provider
+    | default(anarchy_subject.vars.job_vars.cloud_provider)
+    | default(None) }}
+
+  aws_region: >-
+    {{ vars.anarchy_governor.vars.job_vars.aws_region
+    | default(anarchy_subject.vars.job_vars.aws_region)
+    | default(None) }}
+
+  email: >-
+    {{ vars.anarchy_governor.vars.job_vars.email
+    | default(anarchy_subject.vars.job_vars.email)
+    | default(babylon_user_email)
+    | default(None) }}
+
+  student_name: >-
+    {{  vars.anarchy_governor.vars.job_vars.student_name
+    | default(anarchy_subject.vars.job_vars.student_name)
+    | default(babylon_username)
+    | default('babylon') }}
+
+  # Variables from secret via the gpte_db variable
+  mysql_user: "{{ gpte_db.mysql_user | default('provision_writer') }}"
+  mysql_password: "{{ gpte_db.mysql_password }}"
+  mysql_host: "{{ gpte_db.mysql_host }}"
+  mysql_port: "{{ gpte_db.mysql_port | default(3306) }}"
+  mysql_db: "{{ gpte_db.mysql_db | default('lms_transactional') }}"

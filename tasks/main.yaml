@@ -1,0 +1,12 @@
+---
+- include_tasks: pre_checks.yaml
+
+- name: Report to provision DB
+  when:
+    - gpte_db is defined
+    - anarchy_action_config_name is defined
+    - anarchy_action_config_name == 'provision'
+    - anarchy_action_callback_name is defined
+    - anarchy_action_callback_name == 'complete'
+
+  include_tasks: mysql.yaml
