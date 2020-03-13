@@ -8,13 +8,17 @@
     login_user: "{{ gpte_reporting.mysql_user }}"
 
     query:
-      - SELECT COUNT(*) from lms_transactional.Provisions
+      - SELECT 1
 
   ignore_errors: true
   register: r_select
 
-- name: Insert info into GPTE LMS DB
-  when: r_select is succeeded
+# Deployment Started
+- when:
+    - r_select is succeeded
+    - anarchy_action_callback_name == 'started'
+
+  name: Insert info into GPTE LMS DB
 
   # mysql -h qa-sfo00.opentlc.com -u provision_writer  <<< "describe lms_transactional.Provisions"
   # +------------------+--------------+------+-----+---------+-------+
@@ -91,6 +95,31 @@
           %s,
           %s,
           %s,
-          'Success',
+          'Started',
           'BABYLON'
         );
+
+- when:
+    - r_select is succeeded
+    - anarchy_action_callback_name == 'complete'
+
+  name: Update Provision status in GPTE LMS DB
+
+  ignore_errors: true
+  mysql_query:
+    login_db: "{{ gpte_reporting.mysql_db }}"
+    login_host: "{{ gpte_reporting.mysql_host }}"
+    login_port: "{{ gpte_reporting.mysql_port }}"
+    login_password: "{{ gpte_reporting.mysql_password }}"
+    login_user: "{{ gpte_reporting.mysql_user }}"
+
+    positional_args:
+      - "{{ gpte_reporting.uuid }}"
+      - "{{ gpte_reporting.guid }}"
+
+    query:
+      - >-
+        UPDATE lms_transactional.Provisions SET ProvisionResult = 'Success'
+        WHERE uuid = %s
+        AND guid = %s
+        AND DataSource = 'BABYLON';

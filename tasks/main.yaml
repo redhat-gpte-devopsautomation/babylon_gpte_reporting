@@ -7,6 +7,6 @@
     - anarchy_action_config_name is defined
     - anarchy_action_config_name == 'provision'
     - anarchy_action_callback_name is defined
-    - anarchy_action_callback_name == 'complete'
+    - anarchy_action_callback_name in ['started', 'complete']
 
   include_tasks: mysql.yaml
