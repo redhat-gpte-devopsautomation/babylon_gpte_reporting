@@ -1,0 +1,73 @@
+= babylon_gpte_reporting
+
+This role allows us to send information to our tracking tools for every deployments that happen in Babylon.
+
+
+It is to be used in link:https://github.com/redhat-cop/babylon[Babylon] link:https://github.com/redhat-cop/anarchy[Anarchy].
+
+The following **input** keys are expected in the dictionary `gpte_reporting`, see link:defaults/main.yml[defaults/main.yml]:
+
+|=============================================
+| Variable name | type |  Purpose | Default | Mandatory ?
+
+| `guid`
+| String
+| The GUID of the environment
+| -
+| Yes
+
+| `env_type`
+| String
+| The config name of the environment
+| -
+| Yes
+
+| `uuid`
+| String
+| The UUID of the environment
+| The one passed in `cloud_tags` by Cloudforms, or the uid of the AnarchySubject.
+| Yes
+
+|=============================================
+
+
+The role is executed only if the dictionary `gpte_db`  is defined.
+
+That `gpte_db` dictionary can be passed as a secret in anarchy and must contain the following variables:
+
+[source,yaml]
+.`gpte-db` secret
+----
+mysql_user: ...
+mysql_password: ...
+mysql_host: ...
+mysql_port: ...
+mysql_db: ...
+----
+
+Then you have to update the governor to load that secret:
+
+.using agnosticv-operator:
+[source,yaml]
+----
+__meta__:
+  secrets:
+    - name: gpte-db
+      namespace: gpte
+      var: gpte_db
+----
+
+.using Anarchy Governor directly:
+[source,yaml]
+----
+spec:
+  varSecrets:
+    - name: gpte-db
+      namespace: gpte
+      var: gpte_db
+----
+
+The role does the following:
+
+. Stage *provision*, callback *started*: create an entry in the Provision DB, with ProvisionStatus = 'Started'
+. Stage *provision*, callback *complete*: update the entry and set ProvisionStatus to 'Success'
