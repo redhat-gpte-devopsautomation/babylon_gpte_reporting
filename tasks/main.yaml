@@ -1,6 +1,10 @@
 ---
 - debug:
     var: _info
+
+  # Don't fail in case of undefined variables
+  ignore_errors: true
+
   vars:
     _info:
       anarchy_action_config_name: "{{ anarchy_action_config_name | default('') }}"
