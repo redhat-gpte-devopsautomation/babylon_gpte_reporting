@@ -1,4 +1,14 @@
 ---
+- debug:
+    var: _info
+  vars:
+    _info:
+      anarchy_action_config_name: "{{ anarchy_action_config_name | default('') }}"
+      anarchy_action_callback_name: "{{ anarchy_action_callback_name | default('') }}"
+      guid: "{{ gpte_reporting.guid }}"
+      env_type: "{{ gpte_reporting.env_type }}"
+      uuid: "{{ gpte_reporting.uuid }}"
+
 - include_tasks: pre_checks.yaml
 
 - name: Report to provision DB
