@@ -41,7 +41,7 @@ gpte_reporting:
 
   # Variables from secret via the gpte_db variable
   mysql_user: "{{ gpte_db.mysql_user | default('provision_writer') }}"
-  mysql_password: "{{ gpte_db.mysql_password }}"
-  mysql_host: "{{ gpte_db.mysql_host }}"
+  mysql_password: "{{ gpte_db.mysql_password | default('') }}"
+  mysql_host: "{{ gpte_db.mysql_host | default('') }}"
   mysql_port: "{{ gpte_db.mysql_port | default(3306) }}"
   mysql_db: "{{ gpte_db.mysql_db | default('lms_transactional') }}"
