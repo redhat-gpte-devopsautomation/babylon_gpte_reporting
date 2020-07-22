@@ -15,6 +15,8 @@
 
 - include_tasks: pre_checks.yaml
 
+- include_tasks: db_init.yaml
+
 - name: Report to provision DB
   when:
     - gpte_db is defined

@@ -1,0 +1,21 @@
+---
+- name: Update Provision status in GPTE LMS DB
+
+  ignore_errors: true
+  mysql_query:
+    login_db: "{{ gpte_reporting.mysql_db }}"
+    login_host: "{{ gpte_reporting.mysql_host }}"
+    login_port: "{{ gpte_reporting.mysql_port }}"
+    login_password: "{{ gpte_reporting.mysql_password }}"
+    login_user: "{{ gpte_reporting.mysql_user }}"
+
+    positional_args:
+      - "{{ gpte_reporting.uuid }}"
+      - "{{ gpte_reporting.guid }}"
+
+    query:
+      - >-
+        UPDATE lms_transactional.Provisions SET ProvisionResult = 'Success'
+        WHERE uuid = %s
+        AND guid = %s
+        AND DataSource = 'BABYLON';
