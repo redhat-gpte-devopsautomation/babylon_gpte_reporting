@@ -186,6 +186,8 @@ def main():
     for q in query:
         try:
             cursor.execute(q, arguments)
+            if not module.params["single_transaction"]:
+                cursor.connection.commit()
 
         except Exception as e:
             cursor.close()
@@ -209,6 +211,9 @@ def main():
 
         executed_queries.append(cursor._last_executed)
         rowcount.append(cursor.rowcount)
+
+    if module.params["single_transaction"]:
+        cursor.connection.commit()
 
     # Create dict with returned values:
     kw = {
