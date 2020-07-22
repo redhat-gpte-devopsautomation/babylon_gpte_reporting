@@ -19,4 +19,4 @@
     include_tasks: db_init.yaml
 
   - name: Process provision {{ anarchy_action_callback_name }}
-    include_tasks: handle-action-provision-{{ anarchy_action_callback_name }}
+    include_tasks: handle-action-provision-{{ anarchy_action_callback_name }}.yaml
