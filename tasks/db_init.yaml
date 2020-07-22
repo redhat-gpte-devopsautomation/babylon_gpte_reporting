@@ -39,3 +39,7 @@
           KEY `idx_Provisions_GUID` (`GUID`),
           KEY `idx_Provisions_UUID` (`UUID`)
         ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+  register: r_create_table
+  failed_when: >-
+    not r_create_table is success and
+    'already exists' not in r_create_table.msg
