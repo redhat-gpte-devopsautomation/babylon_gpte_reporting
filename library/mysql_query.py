@@ -150,10 +150,6 @@ def main():
     ssl_ca = module.params['ca_cert']
     config_file = module.params['config_file']
     query = module.params["query"]
-    if module.params["single_transaction"]:
-        autocommit = False
-    else:
-        autocommit = True
     # Prepare args:
     if module.params.get("positional_args"):
         arguments = module.params["positional_args"]
@@ -167,11 +163,14 @@ def main():
 
     # Connect to DB:
     try:
-        cursor, db_connection = mysql_connect(module, login_user, login_password,
-                                              config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                              connect_timeout=connect_timeout,
-                                              cursor_class='DictCursor', autocommit=autocommit)
+        cursor = mysql_connect(
+            module, login_user, login_password,
+            config_file, ssl_cert, ssl_key, ssl_ca, db,
+            connect_timeout = connect_timeout,
+            cursor_class = 'DictCursor'
+        )
     except Exception as e:
+        raise
         module.fail_json(msg="unable to connect to database, check login_user and "
                              "login_password are correct or %s has the credentials. "
                              "Exception message: %s" % (config_file, to_native(e)))
@@ -187,11 +186,10 @@ def main():
     for q in query:
         try:
             cursor.execute(q, arguments)
+            if not module.params["single_transaction"]:
+                cursor.connection.commit()
 
         except Exception as e:
-            if not autocommit:
-                db_connection.rollback()
-
             cursor.close()
             module.fail_json(msg="Cannot execute SQL '%s' args [%s]: %s" % (q, arguments, to_native(e)))
 
@@ -199,9 +197,6 @@ def main():
             query_result.append([dict(row) for row in cursor.fetchall()])
 
         except Exception as e:
-            if not autocommit:
-                db_connection.rollback()
-
             module.fail_json(msg="Cannot fetch rows from cursor: %s" % to_native(e))
 
         # Check DML or DDL keywords in query and set changed accordingly:
@@ -217,9 +212,8 @@ def main():
         executed_queries.append(cursor._last_executed)
         rowcount.append(cursor.rowcount)
 
-    # When the module run with the single_transaction == True:
-    if not autocommit:
-        db_connection.commit()
+    if module.params["single_transaction"]:
+        cursor.connection.commit()
 
     # Create dict with returned values:
     kw = {

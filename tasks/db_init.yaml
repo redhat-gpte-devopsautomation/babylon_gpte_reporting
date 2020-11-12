@@ -1,0 +1,45 @@
+---
+- name: Create Provisions table
+  mysql_query:
+    login_db: "{{ gpte_reporting.mysql_db }}"
+    login_host: "{{ gpte_reporting.mysql_host }}"
+    login_port: "{{ gpte_reporting.mysql_port }}"
+    login_password: "{{ gpte_reporting.mysql_password }}"
+    login_user: "{{ gpte_reporting.mysql_user }}"
+
+    query:
+      - >-
+        CREATE TABLE `Provisions` (
+          `ProvisionDate` datetime NOT NULL,
+          `UserName` varchar(200) NOT NULL,
+          `CatalogItem` varchar(200) NOT NULL,
+          `Partner` varchar(200) DEFAULT NULL,
+          `Blueprint` varchar(200) DEFAULT NULL,
+          `ClassName` varchar(200) DEFAULT NULL,
+          `FullName` varchar(200) DEFAULT NULL,
+          `Email` varchar(200) DEFAULT NULL,
+          `Geo` varchar(20) DEFAULT NULL,
+          `ApplicationID` varchar(100) DEFAULT NULL,
+          `StackID` varchar(100) DEFAULT NULL,
+          `CostBucket` varchar(50) DEFAULT NULL,
+          `HourlyCostText` varchar(50) DEFAULT NULL,
+          `TotalCostText` varchar(50) DEFAULT NULL,
+          `WorkshopUsers` varchar(50) DEFAULT NULL,
+          `StudentWorkloads` varchar(50) DEFAULT NULL,
+          `CloudService` varchar(50) DEFAULT NULL,
+          `GUID` varchar(50) DEFAULT NULL,
+          `UUID` varchar(50) DEFAULT NULL,
+          `ProvisionResult` varchar(50) DEFAULT NULL,
+          `DataSource` varchar(50) DEFAULT NULL,
+          `Catalog` varchar(200) DEFAULT NULL,
+          `Opportunity` varchar(200) DEFAULT NULL,
+          `Account` varchar(200) DEFAULT NULL,
+          `Sandbox` varchar(200) DEFAULT NULL,
+          `EnvironmentType` varchar(100) DEFAULT NULL,
+          KEY `idx_Provisions_GUID` (`GUID`),
+          KEY `idx_Provisions_UUID` (`UUID`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=latin1
+  register: r_create_table
+  failed_when: >-
+    not r_create_table is success and
+    'already exists' not in r_create_table.msg
