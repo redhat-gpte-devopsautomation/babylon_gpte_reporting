@@ -15,12 +15,18 @@
 
 - include_tasks: pre_checks.yaml
 
-- name: Report to provision DB
+- name: Handle action/event
+  include_tasks: >-
+    {%- if anarchy_action_config_name is defined -%}
+    {%-   if anarchy_action_callback_name is defined -%}
+    handle-action-{{ anarchy_action_config_name }}-{{ anarchy_action_callback_name }}.yaml
+    {%-   else -%}
+    handle-action-{{ anarchy_action_config_name }}.yaml
+    {%-   endif -%}
+    {%- elif anarchy_event_name is defined -%}
+    handle-event-{{ anarchy_event_name }}.yaml
+    {%- else -%}
+    handle-no-action-or-event.yaml
+    {%- endif -%}
   when:
-    - gpte_db is defined
-    - anarchy_action_config_name is defined
-    - anarchy_action_config_name == 'provision'
-    - anarchy_action_callback_name is defined
-    - anarchy_action_callback_name in ['started', 'complete']
-
-  include_tasks: mysql.yaml
+  - gpte_db is defined

@@ -19,9 +19,6 @@
     - "{{ gpte_reporting.user_name }}"
     - "{{ gpte_reporting.user_email }}"
     - "{{ job_vars | to_json }}"
-    - "{{ gpte_reporting.cloud_region }}"
-    - "{{ gpte_reporting.user_name }}"
-    - "{{ gpte_reporting.user_email }}"
     query:
     - >-
       INSERT INTO Provisions (
@@ -35,15 +32,10 @@
         `UserEmail`,
         `ProvisionVars`,
         `State`,
-        `ProvisionCompleteDateTime`,
-        `StartDateTime`
+        `DestroyCompleteDateTime`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'started', NOW(), NOW()
+        'destroyed', NOW()
       ) ON DUPLICATE KEY UPDATE
-      `CloudRegion` = %s,
-      `UserName` = %s,
-      `UserEmail` = %s,
-      `State` = 'started',
-      `ProvisionCompleteDateTime` = NOW(),
-      `StartDateTime` = NOW()
+      `State` = 'destroyed',
+      `DestroyCompleteDateTime` = NOW()

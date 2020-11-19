@@ -1,5 +1,5 @@
 ---
-- name: Update info in GPTE Cost Reporting DB
+- name: Insert info in GPTE Cost Reporting DB
   # Do not prevent provision when database is unavailable
   ignore_errors: true
   mysql_query:
@@ -22,6 +22,7 @@
     - "{{ gpte_reporting.cloud_region }}"
     - "{{ gpte_reporting.user_name }}"
     - "{{ gpte_reporting.user_email }}"
+    - "{{ job_vars | to_json }}"
     query:
     - >-
       INSERT INTO Provisions (
@@ -34,16 +35,13 @@
         `UserName`,
         `UserEmail`,
         `ProvisionVars`,
-        `State`,
-        `ProvisionCompleteDateTime`,
-        `StartDateTime`
+        `State`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'started', NOW(), NOW()
+        'provisioning'
       ) ON DUPLICATE KEY UPDATE
       `CloudRegion` = %s,
       `UserName` = %s,
       `UserEmail` = %s,
-      `State` = 'started',
-      `ProvisionCompleteDateTime` = NOW(),
-      `StartDateTime` = NOW()
+      `ProvisionVars` = %s,
+      `State` = 'provisioning'

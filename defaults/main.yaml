@@ -1,45 +1,31 @@
 ---
 gpte_reporting:
+  version: v0.1.0
   catalog_item: "{{ vars.anarchy_governor.metadata.name |default('unknown') }}"
 
   # Variables from Anarchy Subject
-  guid: "{{ vars.anarchy_subject.vars.job_vars.guid | default(None) }}"
+  guid: "{{ vars.anarchy_subject.vars.job_vars.guid }}"
+  uuid: "{{ vars.anarchy_subject.vars.job_vars.uuid }}"
+  user_email: >-
+    {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-email']
+     | default(user_name | regex_replace('(.*)-', '\1@'))
+    }}
+  user_name: >-
+    {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-requester-user']
+     | default(vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-claim-namespace'] | regex_replace('^user-', ''))
+     | default('')
+    }}
 
-  # For uuid, use the one passed by Cloudforms in cloud_tags,
-  # or the uuid set in job_vars
-  # or use the AnarchySubject uid
-  uuid: >-
-    {{ vars.anarchy_subject.vars.job_vars.cloud_tags.uuid
-    | default(vars.anarchy_subject.vars.job_vars.uuid)
-    | default(vars.anarchy_subject.metadata.uid) }}
+  # Combine job vars from governor and subject
+  job_vars: >-
+    {{ vars.anarchy_subject.vars.job_vars
+     | combine(vars.anarchy_governor.vars.job_vars)
+    }}
 
-  # Variables from either Governor or Subject
-  env_type: >-
-    {{ vars.anarchy_governor.vars.job_vars.env_type
-    | default(vars.anarchy_subject.vars.job_vars.env_type)
-    | default(None) }}
-
-  cloud_provider: >-
-    {{ vars.anarchy_governor.vars.job_vars.cloud_provider
-    | default(vars.anarchy_subject.vars.job_vars.cloud_provider)
-    | default(None) }}
-
-  aws_region: >-
-    {{ vars.anarchy_governor.vars.job_vars.aws_region
-    | default(vars.anarchy_subject.vars.job_vars.aws_region)
-    | default(None) }}
-
-  email: >-
-    {{ vars.anarchy_governor.vars.job_vars.email
-    | default(vars.anarchy_subject.vars.job_vars.email)
-    | default(babylon_user_email)
-    | default(None) }}
-
-  student_name: >-
-    {{  vars.anarchy_governor.vars.job_vars.student_name
-    | default(vars.anarchy_subject.vars.job_vars.student_name)
-    | default(babylon_username)
-    | default('babylon') }}
+  # Variables from combined job_vars
+  env_type: "{{ job_vars.env_type | default(None) }}"
+  cloud_provider: "{{ job_vars.cloud_provider | default(None) }}"
+  cloud_region: "{{ job_vars.aws_region | default(job_vars.osp_cluster) | default(None) }}"
 
   # Variables from secret via the gpte_db variable
   mysql_user: "{{ gpte_db.mysql_user | default('provision_writer') }}"
