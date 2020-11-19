@@ -1,7 +1,7 @@
 ---
 - name: Update info in GPTE Cost Reporting DB
   # Do not prevent provision when database is unavailable
-  ignore_errors: true
+  ignore_errors: "{{ gpte_reporting.ignore_errors | bool }}"
   mysql_query:
     login_db: "{{ gpte_reporting.mysql_db }}"
     login_host: "{{ gpte_reporting.mysql_host }}"

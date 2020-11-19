@@ -3,6 +3,13 @@ gpte_reporting:
   version: v0.1.0
   catalog_item: "{{ vars.anarchy_governor.metadata.name |default('unknown') }}"
 
+  # Flag to indicate if errors should be ignored
+  ignore_errors: >-
+    {{ vars.anarchy_subject.vars.gpte_reporting_ignore_errors
+     | default(vars.anarchy_governor.vars.gpte_reporting_ignore_errors)
+     | default(false)
+    }}
+
   # Variables from Anarchy Subject
   guid: "{{ vars.anarchy_subject.vars.job_vars.guid }}"
   uuid: "{{ vars.anarchy_subject.vars.job_vars.uuid }}"
