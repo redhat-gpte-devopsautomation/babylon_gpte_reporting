@@ -32,16 +32,9 @@
         `CloudRegion`,
         `UserName`,
         `UserEmail`,
-        `ProvisionVars`,
-        `State`,
-        `ProvisionCompleteDateTime`,
-        `StartDateTime`
+        `ProvisionVars`
       ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'started', NOW(), NOW()
+        %s, %s, %s, %s, %s, %s, %s, %s, %s
       ) ON DUPLICATE KEY UPDATE
       `UserName` = %s,
-      `UserEmail` = %s,
-      `State` = 'started',
-      `ProvisionCompleteDateTime` = NOW(),
-      `StartDateTime` = NOW()
+      `UserEmail` = %s

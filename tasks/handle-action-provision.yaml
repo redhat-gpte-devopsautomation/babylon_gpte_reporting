@@ -19,8 +19,10 @@
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
     - "{{ gpte_reporting_job_vars | to_json }}"
+    - "{{ gpte_reporting_cloud_region }}"
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
+    - "{{ gpte_reporting_job_vars | to_json }}"
     query:
     - >-
       INSERT INTO Environments (
@@ -33,15 +35,13 @@
         `UserName`,
         `UserEmail`,
         `ProvisionVars`,
-        `State`,
-        `ProvisionCompleteDateTime`,
-        `StartDateTime`
+        `State`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'started', NOW(), NOW()
+        'provisioning'
       ) ON DUPLICATE KEY UPDATE
+      `CloudRegion` = %s,
       `UserName` = %s,
       `UserEmail` = %s,
-      `State` = 'started',
-      `ProvisionCompleteDateTime` = NOW(),
-      `StartDateTime` = NOW()
+      `ProvisionVars` = %s,
+      `State` = 'provisioning'

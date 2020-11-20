@@ -34,14 +34,13 @@
         `UserEmail`,
         `ProvisionVars`,
         `State`,
-        `ProvisionCompleteDateTime`,
         `StartDateTime`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'started', NOW(), NOW()
+        'stopped', NOW()
       ) ON DUPLICATE KEY UPDATE
       `UserName` = %s,
       `UserEmail` = %s,
-      `State` = 'started',
-      `ProvisionCompleteDateTime` = NOW(),
-      `StartDateTime` = NOW()
+      `State` = 'stopped',
+      `StopDateTime` = NOW(),
+      `RunTime` = `RunTime` + TIMESTAMPDIFF(SECOND, `StartDateTime`, NOW())

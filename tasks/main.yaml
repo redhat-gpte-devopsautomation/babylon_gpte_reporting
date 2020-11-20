@@ -1,26 +1,25 @@
 ---
-- debug:
-    var: _info
-
-  # Don't fail in case of undefined variables
-  ignore_errors: true
-
+- name: Handle action/event
   vars:
-    _info:
-      anarchy_action_config_name: "{{ anarchy_action_config_name | default('') }}"
-      anarchy_action_callback_name: "{{ anarchy_action_callback_name | default('') }}"
-      guid: "{{ gpte_reporting.guid }}"
-      env_type: "{{ gpte_reporting.env_type }}"
-      uuid: "{{ gpte_reporting.uuid }}"
-
-- include_tasks: pre_checks.yaml
-
-- name: Report to provision DB
+    __tasks_file: >-
+      {%- if anarchy_action_config_name is defined -%}
+      {%-   if anarchy_action_callback_name is defined -%}
+      handle-action-{{ anarchy_action_config_name }}-{{ anarchy_action_callback_name }}.yaml
+      {%-   else -%}
+      handle-action-{{ anarchy_action_config_name }}.yaml
+      {%-   endif -%}
+      {%- elif anarchy_event_name is defined -%}
+      handle-event-{{ anarchy_event_name }}.yaml
+      {%- else -%}
+      handle-no-action-or-event.yaml
+      {%- endif -%}
   when:
-    - gpte_db is defined
-    - anarchy_action_config_name is defined
-    - anarchy_action_config_name == 'provision'
-    - anarchy_action_callback_name is defined
-    - anarchy_action_callback_name in ['started', 'complete']
+  - gpte_db is defined
+  - (role_path ~ '/tasks/' ~ __tasks_file) is file
+  block:
+  - name: Run pre-checks
+    include_tasks: pre_checks.yaml
 
-  include_tasks: mysql.yaml
+  - name: Run handler tasks for action/event
+    include_tasks:
+      file: "{{ __tasks_file }}"

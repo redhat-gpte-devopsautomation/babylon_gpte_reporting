@@ -1,49 +1,44 @@
 ---
-gpte_reporting:
-  catalog_item: "{{ vars.anarchy_governor.metadata.name |default('unknown') }}"
+gpte_reporting_catalog_item: >-
+  {{ vars.anarchy_governor.metadata.name | default('unknown') }}
+  
+# Flag to indicate if errors should be ignored
+gpte_reporting_ignore_errors: >-
+  {{ vars.anarchy_subject.vars.gpte_reporting_ignore_errors
+   | default(vars.anarchy_governor.vars.gpte_reporting_ignore_errors)
+   | default(false)
+  }}
 
-  # Variables from Anarchy Subject
-  guid: "{{ vars.anarchy_subject.vars.job_vars.guid | default(None) }}"
+gpte_reporting_subject_annotations: >-
+  {{ vars.anarchy_subject.metadata.annotations | default({}) }}
 
-  # For uuid, use the one passed by Cloudforms in cloud_tags,
-  # or the uuid set in job_vars
-  # or use the AnarchySubject uid
-  uuid: >-
-    {{ vars.anarchy_subject.vars.job_vars.cloud_tags.uuid
-    | default(vars.anarchy_subject.vars.job_vars.uuid)
-    | default(vars.anarchy_subject.metadata.uid) }}
+# Get user name from poolboy annotation and fallback to namespace name
+gpte_reporting_user_name: >-
+  {{ gpte_reporting_subject_annotations.get('poolboy.gpte.redhat.com/resource-requester-user')
+   | default(gpte_reporting_subject_annotations.get('poolboy.gpte.redhat.com/resource-claim-namespace') | regex_replace('^user-', ''), true)
+   | default('')
+  }}
 
-  # Variables from either Governor or Subject
-  env_type: >-
-    {{ vars.anarchy_governor.vars.job_vars.env_type
-    | default(vars.anarchy_subject.vars.job_vars.env_type)
-    | default(None) }}
+# Get email from poolboy annotation or from gpte_reporting_user_name
+gpte_reporting_user_email: >-
+  {{ gpte_reporting_subject_annotations.get('poolboy.gpte.redhat.com/resource-requester-email')
+   | default(gpte_reporting_user_name| regex_replace('(.*)-', '\1@'), true)
+  }}
 
-  cloud_provider: >-
-    {{ vars.anarchy_governor.vars.job_vars.cloud_provider
-    | default(vars.anarchy_subject.vars.job_vars.cloud_provider)
-    | default(None) }}
+# Combine job vars from governor and subject as babylon_anarchy_governor does, with
+# governor vars overriding subject vars
+gpte_reporting_job_vars: >-
+  {{ vars.anarchy_subject.vars.job_vars
+   | combine(vars.anarchy_governor.vars.job_vars)
+  }}
 
-  aws_region: >-
-    {{ vars.anarchy_governor.vars.job_vars.aws_region
-    | default(vars.anarchy_subject.vars.job_vars.aws_region)
-    | default(None) }}
+gpte_reporting_cloud_provider: "{{ gpte_reporting_job_vars.cloud_provider }}"
+gpte_reporting_env_type: "{{ gpte_reporting_job_vars.env_type }}"
+gpte_reporting_guid: "{{ gpte_reporting_job_vars.guid }}"
+gpte_reporting_uuid: "{{ gpte_reporting_job_vars.uuid }}"
 
-  email: >-
-    {{ vars.anarchy_governor.vars.job_vars.email
-    | default(vars.anarchy_subject.vars.job_vars.email)
-    | default(babylon_user_email)
-    | default(None) }}
-
-  student_name: >-
-    {{  vars.anarchy_governor.vars.job_vars.student_name
-    | default(vars.anarchy_subject.vars.job_vars.student_name)
-    | default(babylon_username)
-    | default('babylon') }}
-
-  # Variables from secret via the gpte_db variable
-  mysql_user: "{{ gpte_db.mysql_user | default('provision_writer') }}"
-  mysql_password: "{{ gpte_db.mysql_password | default('') }}"
-  mysql_host: "{{ gpte_db.mysql_host | default('') }}"
-  mysql_port: "{{ gpte_db.mysql_port | default(3306) }}"
-  mysql_db: "{{ gpte_db.mysql_db | default('lms_transactional') }}"
+gpte_reporting_cloud_region: >-
+  {{ agnostics_placement_cloud
+   | default(gpte_reporting_job_vars.aws_region)
+   | default(None)
+  }}

@@ -19,8 +19,6 @@
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
     - "{{ gpte_reporting_job_vars | to_json }}"
-    - "{{ gpte_reporting_user_name }}"
-    - "{{ gpte_reporting_user_email }}"
     query:
     - >-
       INSERT INTO Environments (
@@ -34,14 +32,11 @@
         `UserEmail`,
         `ProvisionVars`,
         `State`,
-        `ProvisionCompleteDateTime`,
-        `StartDateTime`
+        `DestroyCompleteDateTime`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'started', NOW(), NOW()
+        'destroying', NOW()
       ) ON DUPLICATE KEY UPDATE
-      `UserName` = %s,
-      `UserEmail` = %s,
-      `State` = 'started',
-      `ProvisionCompleteDateTime` = NOW(),
-      `StartDateTime` = NOW()
+      `State` = 'destroying',
+      `DestroyStartDateTime` = NOW(),
+      `RunTime` = `RunTime` + TIMESTAMPDIFF(SECOND, `StartDateTime`, NOW())
