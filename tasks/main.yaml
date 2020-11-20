@@ -1,23 +1,5 @@
 ---
-- debug:
-    var: _info
-
-  # Don't fail in case of undefined variables
-  ignore_errors: true
-
-  vars:
-    _info:
-      anarchy_action_config_name: "{{ anarchy_action_config_name | default('') }}"
-      anarchy_action_callback_name: "{{ anarchy_action_callback_name | default('') }}"
-      guid: "{{ gpte_reporting_guid }}"
-      env_type: "{{ gpte_reporting_env_type }}"
-      uuid: "{{ gpte_reporting_uuid }}"
-
-- include_tasks: pre_checks.yaml
-
 - name: Handle action/event
-  include_tasks:
-    file: "{{ __tasks_file }}"
   vars:
     __tasks_file: >-
       {%- if anarchy_action_config_name is defined -%}
@@ -34,3 +16,10 @@
   when:
   - gpte_db is defined
   - (role_path ~ '/tasks/' ~ __tasks_file) is file
+  block:
+  - name: Run pre-checks
+    include_tasks: pre_checks.yaml
+
+  - name: Run handler tasks for action/event
+    include_tasks:
+      file: "{{ __tasks_file }}"
