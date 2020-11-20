@@ -9,9 +9,9 @@
     _info:
       anarchy_action_config_name: "{{ anarchy_action_config_name | default('') }}"
       anarchy_action_callback_name: "{{ anarchy_action_callback_name | default('') }}"
-      guid: "{{ gpte_reporting.guid }}"
-      env_type: "{{ gpte_reporting.env_type }}"
-      uuid: "{{ gpte_reporting.uuid }}"
+      guid: "{{ gpte_reporting_guid }}"
+      env_type: "{{ gpte_reporting_env_type }}"
+      uuid: "{{ gpte_reporting_uuid }}"
 
 - include_tasks: pre_checks.yaml
 

@@ -1,27 +1,27 @@
 ---
-- name: Update info in GPTE Cost Reporting DB
+- name: Update GPTE Cost Reporting DB
   # Do not prevent provision when database is unavailable
-  ignore_errors: "{{ gpte_reporting.ignore_errors | bool }}"
+  ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
   mysql_query:
-    login_db: "{{ gpte_reporting.mysql_db }}"
-    login_host: "{{ gpte_reporting.mysql_host }}"
-    login_port: "{{ gpte_reporting.mysql_port }}"
-    login_password: "{{ gpte_reporting.mysql_password }}"
-    login_user: "{{ gpte_reporting.mysql_user }}"
+    login_db: "{{ gpte_db.mysql_db }}"
+    login_host: "{{ gpte_db.mysql_host }}"
+    login_port: "{{ gpte_db.mysql_port }}"
+    login_password: "{{ gpte_db.mysql_password }}"
+    login_user: "{{ gpte_db.mysql_user }}"
 
     positional_args:
-    - "{{ gpte_reporting.uuid }}"
-    - "{{ gpte_reporting.guid }}"
+    - "{{ gpte_reporting_uuid }}"
+    - "{{ gpte_reporting_guid }}"
     - "{{ vars.anarchy_subject.spec.governor }}"
-    - "{{ gpte_reporting.env_type }}"
-    - "{{ gpte_reporting.cloud_provider }}"
-    - "{{ gpte_reporting.cloud_region }}"
-    - "{{ gpte_reporting.user_name }}"
-    - "{{ gpte_reporting.user_email }}"
-    - "{{ job_vars | to_json }}"
+    - "{{ gpte_reporting_env_type }}"
+    - "{{ gpte_reporting_cloud_provider }}"
+    - "{{ gpte_reporting_cloud_region }}"
+    - "{{ gpte_reporting_user_name }}"
+    - "{{ gpte_reporting_user_email }}"
+    - "{{ gpte_reporting_job_vars | to_json }}"
     query:
     - >-
-      INSERT INTO Provisions (
+      INSERT INTO Environments (
         `UUID`,
         `GUID`,
         `AnarchyGovernor`,
