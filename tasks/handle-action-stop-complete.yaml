@@ -42,4 +42,5 @@
       `UserName` = %s,
       `UserEmail` = %s,
       `State` = 'stopped',
-      `StopDateTime` = NOW()
+      `StopDateTime` = NOW(),
+      `RunTime` = `RunTime` + TIMESTAMPDIFF(SECOND, `StartDateTime`, NOW())

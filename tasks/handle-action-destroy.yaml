@@ -38,4 +38,5 @@
         'destroying', NOW()
       ) ON DUPLICATE KEY UPDATE
       `State` = 'destroying',
-      `DestroyStartDateTime` = NOW()
+      `DestroyStartDateTime` = NOW(),
+      `RunTime` = `RunTime` + TIMESTAMPDIFF(SECOND, `StartDateTime`, NOW())
