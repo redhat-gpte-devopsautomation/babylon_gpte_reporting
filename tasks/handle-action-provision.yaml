@@ -1,5 +1,5 @@
 ---
-- name: Update GPTE Cost Reporting DB
+- name: Update Environments
   # Do not prevent provision when database is unavailable
   ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
   mysql_query:

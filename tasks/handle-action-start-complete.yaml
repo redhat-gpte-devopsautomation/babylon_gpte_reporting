@@ -1,5 +1,5 @@
 ---
-- name: Update GPTE Cost Reporting DB
+- name: Update Environments
   # Do not prevent provision when database is unavailable
   ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
   mysql_query:
@@ -33,13 +33,27 @@
         `UserName`,
         `UserEmail`,
         `ProvisionVars`,
-        `State`,
-        `StartDateTime`
+        `State`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'started', NOW()
+        'started'
       ) ON DUPLICATE KEY UPDATE
       `UserName` = %s,
       `UserEmail` = %s,
-      `State` = 'started',
-      `StartDateTime` = NOW()
+      `State` = 'started'
+
+- name: Update EnvironmentRuntimes
+  # Do not prevent provision when database is unavailable
+  ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
+  mysql_query:
+    login_db: "{{ gpte_db.mysql_db }}"
+    login_host: "{{ gpte_db.mysql_host }}"
+    login_port: "{{ gpte_db.mysql_port }}"
+    login_password: "{{ gpte_db.mysql_password }}"
+    login_user: "{{ gpte_db.mysql_user }}"
+
+    positional_args:
+    - "{{ gpte_reporting_uuid }}"
+    query:
+    - >-
+      INSERT INTO EnvironmentRuntimes (`UUID`) VALUES (%s)
