@@ -37,12 +37,12 @@
         `ProvisionCompleteDateTime`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'started', NOW()
+        'started', UTC_TIMESTAMP()
       ) ON DUPLICATE KEY UPDATE
       `UserName` = %s,
       `UserEmail` = %s,
       `State` = 'started',
-      `ProvisionCompleteDateTime` = NOW()
+      `ProvisionCompleteDateTime` = UTC_TIMESTAMP()
 
 - name: Update EnvironmentRuntimes
   # Do not prevent provision when database is unavailable

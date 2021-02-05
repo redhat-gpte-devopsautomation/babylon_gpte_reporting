@@ -57,5 +57,5 @@
     query:
     - >-
       UPDATE EnvironmentRuntimes
-      SET StopDateTime=NOW()
+      SET StopDateTime=UTC_TIMESTAMP()
       WHERE `UUID` = %s AND StopDateTime IS NULL

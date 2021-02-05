@@ -35,7 +35,7 @@
         `DestroyCompleteDateTime`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'destroying', NOW()
+        'destroying', UTC_TIMESTAMP()
       ) ON DUPLICATE KEY UPDATE
       `State` = 'destroying',
-      `DestroyStartDateTime` = NOW()
+      `DestroyStartDateTime` = UTC_TIMESTAMP()

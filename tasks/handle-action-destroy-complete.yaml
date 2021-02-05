@@ -35,10 +35,10 @@
         `DestroyCompleteDateTime`
       ) VALUES (
         %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'destroyed', NOW()
+        'destroyed', UTC_TIMESTAMP()
       ) ON DUPLICATE KEY UPDATE
       `State` = 'destroyed',
-      `DestroyCompleteDateTime` = NOW()
+      `DestroyCompleteDateTime` = UTC_TIMESTAMP()
 
 - name: Update EnvironmentRuntimes
   # Do not prevent provision when database is unavailable
@@ -55,5 +55,5 @@
     query:
     - >-
       UPDATE EnvironmentRuntimes
-      SET StopDateTime=NOW()
+      SET StopDateTime=UTC_TIMESTAMP()
       WHERE `UUID` = %s AND StopDateTime IS NULL
