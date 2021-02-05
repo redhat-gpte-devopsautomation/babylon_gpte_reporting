@@ -1,8 +1,4 @@
 ---
-- name: Set request_guid
-  set_fact:
-    request_guid: "{{ poolboy_resource_claim_name | regex_replace('.*-', '') }}"
-
 - name: Get ResourceClaim {{ poolboy_resource_claim_name }} in {{ poolboy_resource_claim_namespace }}
   k8s_info:
     api_version: poolboy.gpte.redhat.com/v1

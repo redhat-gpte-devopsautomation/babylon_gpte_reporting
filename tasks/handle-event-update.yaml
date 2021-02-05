@@ -5,7 +5,7 @@
   - poolboy_resource_claim_name != ''
   - poolboy_resource_claim_namespace != ''
 
-- name: Update GPTE Cost Reporting DB
+- name: Update Environments record {{ gpte_reporting_uuid }} for update
   # Do not prevent provision when database is unavailable
   ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
   mysql_query:
@@ -23,20 +23,16 @@
     - "{{ gpte_reporting_env_type }}"
     - "{{ gpte_reporting_cloud_provider }}"
     - "{{ gpte_reporting_cloud_region }}"
-    - "{{ request_guid }}" # RequestGUID - test and set
-    - "{{ request_guid }}"
-    - "{{ request_uuid }}" # RequestUUID - test and set
     - "{{ request_uuid }}"
-    - "{{ request_uuid }}" # RequestDateTime - set to UTC_TIMESTAMP() if request_uuid value
+    - "{{ request_guid }}"
+    - "{{ request_guid }}" # RequestDateTime - set to UTC_TIMESTAMP() if emptystring
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
     - "{{ gpte_reporting_job_vars | to_json }}"
     # ON DUPLICATE KEY UPDATE
-    - "{{ request_guid }}" # RequestGUID - test and set
-    - "{{ request_guid }}"
-    - "{{ request_uuid }}" # RequestUUID - test and set
     - "{{ request_uuid }}"
-    - "{{ request_uuid }}" # RequestDateTime - set to UTC_TIMESTAMP() if request_uuid value
+    - "{{ request_guid }}"
+    - "{{ request_guid }}" # RequestDateTime - set to UTC_TIMESTAMP() if emptystring
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
     query:
@@ -48,15 +44,15 @@
         `EnvironmentType` = %s,
         `CloudProvider` = %s,
         `CloudRegion` = %s,
-        `RequestGUID` = IF(%s = '', NULL, %s),
-        `RequestUUID` = IF(%s = '', NULL, %s),
+        `RequestUUID` = NULLIF(%s, ''),
+        `RequestGUID` = NULLIF(%s, ''),
         `RequestDateTime` = IF(%s = '', NULL, UTC_TIMESTAMP()),
         `UserName` = %s,
         `UserEmail` = %s,
         `ProvisionVars` = %s
       ON DUPLICATE KEY UPDATE
-        `RequestGUID` = IFNULL(`RequestGUID`, IF(%s = '', NULL, %s)),
-        `RequestUUID` = IFNULL(`RequestUUID`, IF(%s = '', NULL, %s)),
+        `RequestUUID` = IFNULL(`RequestUUID`, NULLIF(%s, '')),
+        `RequestGUID` = IFNULL(`RequestGUID`, NULLIF(%s, '')),
         `RequestDateTime` = IFNULL(`RequestDateTime`, IF(%s = '', NULL, UTC_TIMESTAMP())),
         `UserName` = %s,
         `UserEmail` = %s

@@ -8,3 +8,7 @@ poolboy_resource_handle_name: >-
   {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-handle-name'] | default('') }}
 poolboy_resource_handle_namespace: >-
   {{ vars.anarchy_subject.metadata.annotations['poolboy.gpte.redhat.com/resource-handle-namespace'] | default('') }}
+
+# Catalog vars from poolboy
+request_guid: "{{ poolboy_resource_claim_name | regex_replace('.*-', '') }}"
+request_uuid: ''

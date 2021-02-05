@@ -42,6 +42,3 @@ gpte_reporting_cloud_region: >-
    | default(gpte_reporting_job_vars.aws_region)
    | default(None)
   }}
-
-request_guid: ''
-request_uuid: ''
