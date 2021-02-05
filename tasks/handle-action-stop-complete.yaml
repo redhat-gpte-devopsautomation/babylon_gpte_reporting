@@ -49,7 +49,7 @@
         `UserEmail` = %s,
         `State` = 'stopped'
 
-- name: Set StopDatetime in EnvironmentRuntimes for {{ gpte_reporting_uuid }} on stop complete
+- name: Set StopDateTime in EnvironmentRuntimes for {{ gpte_reporting_uuid }} on stop complete
   # Do not prevent provision when database is unavailable
   ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
   mysql_query:
