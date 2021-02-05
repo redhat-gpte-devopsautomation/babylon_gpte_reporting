@@ -42,7 +42,7 @@
         `UserEmail` = %s,
         `ProvisionVars` = %s,
         `State` = 'destroyed',
-        `DestroyCompleteDateTime = UTC_TIMESTAMP()
+        `DestroyCompleteDateTime` = UTC_TIMESTAMP()
       ON DUPLICATE KEY UPDATE
         `RequestGUID` = IFNULL(`RequestGUID`, NULLIF(%s, '')),
         `RequestDateTime` = IFNULL(`RequestDateTime`, IF(%s = '', NULL, UTC_TIMESTAMP())),
