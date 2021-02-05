@@ -1,5 +1,5 @@
 ---
-- name: Update Environments
+- name: Update Environments record {{ gpte_reporting_uuid }} to state destroying
   # Do not prevent provision when database is unavailable
   ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
   mysql_query:
@@ -10,32 +10,43 @@
     login_user: "{{ gpte_db.mysql_user }}"
 
     positional_args:
+    # INSERT
     - "{{ gpte_reporting_uuid }}"
     - "{{ gpte_reporting_guid }}"
     - "{{ vars.anarchy_subject.spec.governor }}"
     - "{{ gpte_reporting_env_type }}"
     - "{{ gpte_reporting_cloud_provider }}"
     - "{{ gpte_reporting_cloud_region }}"
+    - "{{ request_guid }}"
+    - "{{ request_guid }}" # RequestDateTime - set to UTC_TIMESTAMP() if not emptystring
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
     - "{{ gpte_reporting_job_vars | to_json }}"
+    # ON DUPLICATE KEY UPDATE
+    - "{{ request_guid }}"
+    - "{{ request_guid }}" # RequestDateTime - set to UTC_TIMESTAMP() if not emptystring
+    - "{{ gpte_reporting_user_name }}"
+    - "{{ gpte_reporting_user_email }}"
     query:
-    - >-
-      INSERT INTO Environments (
-        `UUID`,
-        `GUID`,
-        `AnarchyGovernor`,
-        `EnvironmentType`,
-        `CloudProvider`,
-        `CloudRegion`,
-        `UserName`,
-        `UserEmail`,
-        `ProvisionVars`,
-        `State`,
-        `DestroyCompleteDateTime`
-      ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'destroying', NOW()
-      ) ON DUPLICATE KEY UPDATE
-      `State` = 'destroying',
-      `DestroyStartDateTime` = NOW()
+    - |
+      INSERT INTO Environments SET
+        `UUID` = %s,
+        `GUID` = %s,
+        `AnarchyGovernor` = %s,
+        `EnvironmentType` = %s,
+        `CloudProvider` = %s,
+        `CloudRegion` = %s,
+        `RequestGUID` = NULLIF(%s, ''),
+        `RequestDateTime` = IF(%s = '', NULL, UTC_TIMESTAMP()),
+        `UserName` = %s,
+        `UserEmail` = %s,
+        `ProvisionVars` = %s,
+        `State` = 'destroying',
+        `DestroyCompleteDateTime` = UTC_TIMESTAMP()
+      ON DUPLICATE KEY UPDATE
+        `RequestGUID` = IFNULL(`RequestGUID`, NULLIF(%s, '')),
+        `RequestDateTime` = IFNULL(`RequestDateTime`, IF(%s = '', NULL, UTC_TIMESTAMP())),
+        `UserName` = %s,
+        `UserEmail` = %s,
+        `State` = 'destroying',
+        `DestroyStartDateTime` = UTC_TIMESTAMP()

@@ -1,0 +1,16 @@
+---
+- name: Get ResourceClaim {{ poolboy_resource_claim_name }} in {{ poolboy_resource_claim_namespace }}
+  k8s_info:
+    api_version: poolboy.gpte.redhat.com/v1
+    kind: ResourceClaim
+    name: "{{ poolboy_resource_claim_name }}"
+    namespace: "{{ poolboy_resource_claim_namespace }}"
+  register: r_get_resourceclaim
+
+- name: Set request_uuid
+  when:
+  - r_get_resourceclaim.resources | length > 0
+  vars:
+    __resource_claim: "{{ r_get_resourceclaim.resources[0] }}"
+  set_fact:
+    request_uuid: "{{ __resource_claim.metadata.labels.uuid | default('') }}"

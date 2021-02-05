@@ -1,5 +1,11 @@
 ---
-- name: Update Environments
+- name: Get ResourceClaim Data
+  include_tasks: get-resource-claim-data.yaml
+  when:
+  - poolboy_resource_claim_name != ''
+  - poolboy_resource_claim_namespace != ''
+
+- name: Update Environments record {{ gpte_reporting_uuid }} to state provisioning
   # Do not prevent provision when database is unavailable
   ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
   mysql_query:
@@ -10,38 +16,51 @@
     login_user: "{{ gpte_db.mysql_user }}"
 
     positional_args:
+    # INSERT
     - "{{ gpte_reporting_uuid }}"
     - "{{ gpte_reporting_guid }}"
     - "{{ vars.anarchy_subject.spec.governor }}"
     - "{{ gpte_reporting_env_type }}"
     - "{{ gpte_reporting_cloud_provider }}"
     - "{{ gpte_reporting_cloud_region }}"
+    - "{{ request_uuid }}"
+    - "{{ request_guid }}"
+    - "{{ request_guid }}" # RequestDateTime - set to UTC_TIMESTAMP() if emptystring
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
     - "{{ gpte_reporting_job_vars | to_json }}"
+    # ON DUPLICATE KEY UPDATE
+    - "{{ gpte_reporting_cloud_provider }}"
     - "{{ gpte_reporting_cloud_region }}"
+    - "{{ request_uuid }}"
+    - "{{ request_guid }}"
+    - "{{ request_guid }}" # RequestDateTime - set to UTC_TIMESTAMP() if emptystring
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
     - "{{ gpte_reporting_job_vars | to_json }}"
     query:
-    - >-
-      INSERT INTO Environments (
-        `UUID`,
-        `GUID`,
-        `AnarchyGovernor`,
-        `EnvironmentType`,
-        `CloudProvider`,
-        `CloudRegion`,
-        `UserName`,
-        `UserEmail`,
-        `ProvisionVars`,
-        `State`
-      ) VALUES (
-        %s, %s, %s, %s, %s, %s, %s, %s, %s,
-        'provisioning'
-      ) ON DUPLICATE KEY UPDATE
-      `CloudRegion` = %s,
-      `UserName` = %s,
-      `UserEmail` = %s,
-      `ProvisionVars` = %s,
-      `State` = 'provisioning'
+    - |
+      INSERT INTO Environments SET
+        `UUID` = %s,
+        `GUID` = %s,
+        `AnarchyGovernor` = %s,
+        `EnvironmentType` = %s,
+        `CloudProvider` = %s,
+        `CloudRegion` = %s,
+        `RequestUUID` = NULLIF(%s, ''),
+        `RequestGUID` = NULLIF(%s, ''),
+        `RequestDateTime` = IF(%s = '', NULL, UTC_TIMESTAMP()),
+        `UserName` = %s,
+        `UserEmail` = %s,
+        `ProvisionVars` = %s,
+        `State` = 'provisioning'
+      ON DUPLICATE KEY UPDATE
+        `CloudProvider` = %s,
+        `CloudRegion` = %s,
+        `RequestUUID` = IFNULL(`RequestUUID`, NULLIF(%s, '')),
+        `RequestGUID` = IFNULL(`RequestGUID`, NULLIF(%s, '')),
+        `RequestDateTime` = IFNULL(`RequestDateTime`, IF(%s = '', NULL, UTC_TIMESTAMP())),
+        `UserName` = %s,
+        `UserEmail` = %s,
+        `ProvisionVars` = %s,
+        `State` = 'provisioning'
