@@ -49,8 +49,25 @@
         `UserEmail` = %s,
         `State` = 'started'
 
-- name: Update EnvironmentRuntimes start for {{ gpte_reporting_uuid }} on start complete
+- name: Check for ongoing EnvironmentRuntimeID row for {{ gpte_reporting_uuid }}
+  mysql_query:
+    login_db: "{{ gpte_db.mysql_db }}"
+    login_host: "{{ gpte_db.mysql_host }}"
+    login_port: "{{ gpte_db.mysql_port }}"
+    login_password: "{{ gpte_db.mysql_password }}"
+    login_user: "{{ gpte_db.mysql_user }}"
+
+    positional_args:
+    - "{{ gpte_reporting_uuid }}"
+    query:
+    - |
+      SELECT EnvironmentRuntimeID FROM EnvironmentRuntimes
+      WHERE `UUID` = %s AND StopDateTime IS NULL
+  register: r_find_environment_runtime_id
+
+- name: Create EnvironmentRuntimes record for {{ gpte_reporting_uuid }} on start complete
   # Do not prevent provision when database is unavailable
+  when: r_find_environment_runtime_id.rowcount[0] == 0
   ignore_errors: "{{ gpte_reporting_ignore_errors | bool }}"
   mysql_query:
     login_db: "{{ gpte_db.mysql_db }}"
