@@ -29,12 +29,14 @@
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
     - "{{ gpte_reporting_job_vars | to_json }}"
+    - "{{ provision_failure_state }}"
     # ON DUPLICATE KEY UPDATE
     - "{{ request_uuid }}"
     - "{{ request_guid }}"
     - "{{ request_guid }}" # RequestDateTime - set to UTC_TIMESTAMP() if emptystring
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
+    - "{{ provision_failure_state }}"
     query:
     - |
       INSERT INTO Environments SET
@@ -50,9 +52,11 @@
         `UserName` = %s,
         `UserEmail` = %s,
         `ProvisionVars` = %s
+        `ProvisionResult` = NULLIF(%s, '')
       ON DUPLICATE KEY UPDATE
         `RequestUUID` = IFNULL(`RequestUUID`, NULLIF(%s, '')),
         `RequestGUID` = IFNULL(`RequestGUID`, NULLIF(%s, '')),
         `RequestDateTime` = IFNULL(`RequestDateTime`, IF(%s = '', NULL, UTC_TIMESTAMP())),
         `UserName` = %s,
-        `UserEmail` = %s
+        `UserEmail` = %s,
+        `ProvisionResult` = IFNULL(`ProvisionResult`, NULLIF(%s, ''))
