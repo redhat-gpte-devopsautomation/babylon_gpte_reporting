@@ -42,6 +42,7 @@
         `UserEmail` = %s,
         `ProvisionVars` = %s,
         `State` = 'started',
+        `ProvisionResult` = 'successful',
         `ProvisionCompleteDateTime` = UTC_TIMESTAMP()
       ON DUPLICATE KEY UPDATE
         `RequestGUID` = IFNULL(`RequestGUID`, NULLIF(%s, '')),
@@ -49,6 +50,7 @@
         `UserName` = %s,
         `UserEmail` = %s,
         `State` = 'started',
+        `ProvisionResult` = 'successful',
         `ProvisionCompleteDateTime` = UTC_TIMESTAMP()
 
 - name: Create EnvironmentRuntimes record for {{ gpte_reporting_uuid }} on provision complete
