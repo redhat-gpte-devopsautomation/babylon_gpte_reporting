@@ -28,7 +28,7 @@
     - "{{ request_guid }}" # RequestDateTime - set to UTC_TIMESTAMP() if not emptystring
     - "{{ gpte_reporting_user_name }}"
     - "{{ gpte_reporting_user_email }}"
-    - "{{ provision_failure_state }}"
+    - "{{ provision_failure_state | default('canceled', true) }}"
     query:
     - |
       INSERT INTO Environments SET
@@ -51,6 +51,6 @@
         `RequestDateTime` = IFNULL(`RequestDateTime`, IF(%s = '', NULL, UTC_TIMESTAMP())),
         `UserName` = %s,
         `UserEmail` = %s,
-        `ProvisionResult` = IFNULL(`ProvisionResult`, NULLIF(%s, '')),
+        `ProvisionResult` = IFNULL(`ProvisionResult`, %s),
         `State` = 'destroying',
         `DestroyStartDateTime` = UTC_TIMESTAMP()
