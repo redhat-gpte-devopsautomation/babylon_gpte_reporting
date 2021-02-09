@@ -51,7 +51,7 @@
         `RequestDateTime` = IF(%s = '', NULL, UTC_TIMESTAMP()),
         `UserName` = %s,
         `UserEmail` = %s,
-        `ProvisionVars` = %s
+        `ProvisionVars` = %s,
         `ProvisionResult` = NULLIF(%s, '')
       ON DUPLICATE KEY UPDATE
         `RequestUUID` = IFNULL(`RequestUUID`, NULLIF(%s, '')),
