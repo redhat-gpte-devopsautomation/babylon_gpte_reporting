@@ -2,7 +2,7 @@
 current_state: ''
 provision_failure_state: >-
   {% if current_state.startswith('provision-') -%}
-  {{ current_state.regex_replace('^provision-', '') }}
+  {{ current_state | regex_replace('^provision-', '') }}
   {%- endif %}
 
 gpte_reporting_catalog_item: >-
