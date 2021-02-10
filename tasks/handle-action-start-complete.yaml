@@ -35,18 +35,18 @@
         `AnarchyGovernor` = %s,
         `EnvironmentType` = %s,
         `CloudProvider` = %s,
-        `CloudRegion` = %s,
+        `CloudRegion` = NULLIF(%s, ''),
         `RequestGUID` = NULLIF(%s, ''),
         `RequestDateTime` = IF(%s = '', NULL, UTC_TIMESTAMP()),
-        `UserName` = %s,
-        `UserEmail` = %s,
+        `UserName` = NULLIF(%s, ''),
+        `UserEmail` = NULLIF(%s, ''),
         `ProvisionVars` = %s,
         `State` = 'started'
       ON DUPLICATE KEY UPDATE
         `RequestGUID` = IFNULL(`RequestGUID`, NULLIF(%s, '')),
         `RequestDateTime` = IFNULL(`RequestDateTime`, IF(%s = '', NULL, UTC_TIMESTAMP())),
-        `UserName` = %s,
-        `UserEmail` = %s,
+        `UserName` = IFNULL(`UserName`, NULLIF(%s, '')),
+        `UserEmail` = IFNULL(`UserEmail`, NULLIF(%s, '')),
         `State` = 'started'
 
 - name: Check for ongoing EnvironmentRuntimeID row for {{ gpte_reporting_uuid }}

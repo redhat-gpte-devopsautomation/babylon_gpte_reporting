@@ -45,18 +45,18 @@
         `AnarchyGovernor` = %s,
         `EnvironmentType` = %s,
         `CloudProvider` = %s,
-        `CloudRegion` = %s,
+        `CloudRegion` = NULLIF(%s, ''),
         `RequestUUID` = NULLIF(%s, ''),
         `RequestGUID` = NULLIF(%s, ''),
         `RequestDateTime` = IF(%s = '', NULL, UTC_TIMESTAMP()),
-        `UserName` = %s,
-        `UserEmail` = %s,
+        `UserName` = NULLIF(%s, ''),
+        `UserEmail` = NULLIF(%s, ''),
         `ProvisionVars` = %s,
         `ProvisionResult` = NULLIF(%s, '')
       ON DUPLICATE KEY UPDATE
         `RequestUUID` = IFNULL(`RequestUUID`, NULLIF(%s, '')),
         `RequestGUID` = IFNULL(`RequestGUID`, NULLIF(%s, '')),
         `RequestDateTime` = IFNULL(`RequestDateTime`, IF(%s = '', NULL, UTC_TIMESTAMP())),
-        `UserName` = %s,
-        `UserEmail` = %s,
+        `UserName` = IFNULL(`UserName`, NULLIF(%s, '')),
+        `UserEmail` = IFNULL(`UserEmail`, NULLIF(%s, '')),
         `ProvisionResult` = IFNULL(`ProvisionResult`, NULLIF(%s, ''))
