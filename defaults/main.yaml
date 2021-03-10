@@ -1,7 +1,7 @@
 ---
 current_state: ''
 provision_failure_state: >-
-  {% if current_state.startswith('provision-') -%}
+  {% if current_state.startswith('provision-') and current_state != 'provision-pending' -%}
   {{ current_state | regex_replace('^provision-', '') }}
   {%- endif %}
 
