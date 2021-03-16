@@ -15,6 +15,7 @@
       {%- endif -%}
   when:
   - gpte_db is defined
+  - gpte_reporting_uuid != ''
   - (role_path ~ '/tasks/' ~ __tasks_file) is file
   block:
   - name: Run pre-checks

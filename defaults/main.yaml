@@ -41,7 +41,7 @@ gpte_reporting_job_vars: >-
 gpte_reporting_cloud_provider: "{{ gpte_reporting_job_vars.cloud_provider }}"
 gpte_reporting_env_type: "{{ gpte_reporting_job_vars.env_type }}"
 gpte_reporting_guid: "{{ gpte_reporting_job_vars.guid }}"
-gpte_reporting_uuid: "{{ gpte_reporting_job_vars.uuid }}"
+gpte_reporting_uuid: "{{ gpte_reporting_job_vars.uuid | default('') }}"
 
 gpte_reporting_cloud_region: >-
   {{ agnostics_placement_cloud
