@@ -169,6 +169,9 @@ def main():
             connect_timeout = connect_timeout,
             cursor_class = 'DictCursor'
         )
+        # Newer versions of mysql module utils return tuple
+        if isinstance(cursor, tuple):
+            cursor = cursor[0]
     except Exception as e:
         raise
         module.fail_json(msg="unable to connect to database, check login_user and "
